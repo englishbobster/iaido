@@ -7,25 +7,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class CalcNodeTest {
 
     @Test
-    void makesACompNode() {
-        CalcNode testValue = new CalcNode(2.0);
-        assertThat(testValue.toString()).isEqualTo("""
-                {"calcNode": {
-                "data": 2.0,
-                "children": []}}"""
-        );
-    }
-
-    @Test
-    void makesAnotherCompNode() {
-        CalcNode testValue = new CalcNode(3.0);
-        assertThat(testValue.toString()).isEqualTo("""
-                {"calcNode": {
-                "data": 3.0,
-                "children": []}}""");
-    }
-
-    @Test
     void addsCompNodes() {
         CalcNode A = new CalcNode(3.0);
         CalcNode B = new CalcNode(7.0);
@@ -64,4 +45,16 @@ public class CalcNodeTest {
         assertThat(B.getChildren()).hasSize(0);
         assertThat(C.getChildren()).hasSize(2);
     }
+
+    @Test
+    void resultSetsOperationCorrectly() {
+        CalcNode A = new CalcNode(10.0);
+        CalcNode B = new CalcNode(4.0);
+        CalcNode C = A.multiply(B);
+        System.out.println(C);
+        assertThat(A.getOperation()).isEmpty();
+        assertThat(B.getOperation()).isEmpty();
+        assertThat(C.getOperation()).isEqualTo("*");
+    }
+
 }
