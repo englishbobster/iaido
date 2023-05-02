@@ -57,4 +57,24 @@ public class CalcNodeTest {
         assertThat(C.getOperation()).isEqualTo("*");
     }
 
+    @Test
+    void listifyParentAndChildren_3_nodes() {
+        CalcNode A = new CalcNode(10.0, "A");
+        CalcNode B = new CalcNode(4.0, "B");
+        CalcNode C = A.multiply(B);
+
+        assertThat(C.toList()).containsExactlyInAnyOrder(A, B, C);
+    }
+
+    @Test
+    void listifyParentAndChildren_5_nodes() {
+        CalcNode A = new CalcNode(-3.0, "A");
+        CalcNode B = new CalcNode(2.0, "B");
+        CalcNode C = A.multiply(B);
+        C.setLabel("C");
+        CalcNode D = new CalcNode(10.0, "D");
+        CalcNode E = C.add(D);
+        E.setLabel("E");
+        assertThat(E.toList()).containsExactlyInAnyOrder(A, B, C, D, E);
+    }
 }

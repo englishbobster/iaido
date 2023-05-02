@@ -1,8 +1,6 @@
 package org.stos.iaido;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class CalcNode {
@@ -62,14 +60,36 @@ public class CalcNode {
         return new CalcNode(this.data * other.data, Pair.of(this, other), Operation.MULTIPLY);
     }
 
+
+    public List<CalcNode> toList(){
+        Set<CalcNode> list = toList(new HashSet<CalcNode>());
+        return list.stream().toList();
+    }
+
+    private Set<CalcNode> toList(Set<CalcNode> nodes){
+        Set<CalcNode> kids = this.getChildren();
+        nodes.add(this);
+        for(CalcNode kid: kids){
+            if(kid.getChildren().isEmpty()) {
+                nodes.add(kid);
+            } else {
+                kid.toList(nodes);
+            }
+        }
+        return nodes;
+    }
+
     @Override
     public String toString() {
-        return "{\n"+ "\"calcNode\": {\n"
-                + "\t\"nodeId\": " + nodeId + ",\n"
+        return "{\n"
+                + "\t\"nodeId\": \"" + nodeId + "\",\n"
                 + "\t\"data\": " + data + ",\n"
+                + "\t\"label\": " + (label.isEmpty()? "\"\"" : "\"" + label + "\"") + ",\n"
+                + "\t\"operation\": " +  "\""+ getOperation() +"\""  + ",\n"
                 + "\t\"children\": "
-                + (children.isEmpty() ? "" : children.stream().map(child -> child.nodeId.toString()).collect(Collectors.joining(", ","[","]")))
-                +"\n}}";
+                + (children.isEmpty() ? "[]" : children.stream().map(child -> "\"" + child.nodeId + "\"")
+                .collect(Collectors.joining(", ","[\n","\n]")))
+                +"\n}";
     }
 
     @Override
