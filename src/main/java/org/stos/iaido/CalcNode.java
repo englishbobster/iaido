@@ -7,17 +7,10 @@ public class CalcNode {
 
     private final UUID nodeId = UUID.randomUUID();
     private final double data;
+    private double grad = 0;
     private final Set<CalcNode> children = new HashSet<>();
     private final Operation operation;
-    private  String label;
-
-    public CalcNode(double data, Pair children, Operation operation, String label) {
-        this.children.add(children.A);
-        this.children.add(children.B);
-        this.data = data;
-        this.operation = operation;
-        this.label = label;
-    }
+    private String label;
 
     public CalcNode(double data, Pair children, Operation operation) {
         this.children.add(children.A);
@@ -35,10 +28,6 @@ public class CalcNode {
 
     public Set<CalcNode> getChildren() {
         return children;
-    }
-
-    public String getLabel(){
-        return label;
     }
 
     public void setLabel(String label){
@@ -84,6 +73,7 @@ public class CalcNode {
         return "{\n"
                 + "\t\"nodeId\": \"" + nodeId + "\",\n"
                 + "\t\"data\": " + data + ",\n"
+                + "\t\"grad\": " + grad + ",\n"
                 + "\t\"label\": " + (label.isEmpty()? "\"\"" : "\"" + label + "\"") + ",\n"
                 + "\t\"operation\": " +  "\""+ getOperation() +"\""  + ",\n"
                 + "\t\"children\": "

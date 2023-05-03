@@ -1,7 +1,6 @@
 package org.stos.iaido.grapher;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import guru.nidi.graphviz.attribute.Label;
 import guru.nidi.graphviz.attribute.Rank;
 import guru.nidi.graphviz.attribute.Records;
 import guru.nidi.graphviz.attribute.Shape;
@@ -12,7 +11,6 @@ import guru.nidi.graphviz.model.MutableNode;
 
 import java.io.File;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,8 +21,10 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static guru.nidi.graphviz.attribute.Rank.RankDir.LEFT_TO_RIGHT;
-import static guru.nidi.graphviz.attribute.Records.*;
-import static guru.nidi.graphviz.model.Factory.*;
+import static guru.nidi.graphviz.attribute.Records.rec;
+import static guru.nidi.graphviz.attribute.Records.turn;
+import static guru.nidi.graphviz.model.Factory.graph;
+import static guru.nidi.graphviz.model.Factory.mutNode;
 
 public class Grapher {
 
@@ -37,14 +37,16 @@ public class Grapher {
 
         Map<UUID, MutableNode> nodeByUuid = calcNodes.stream()
                 .collect(Collectors.toMap(CalcNode::nodeId, calcNode -> mutNode(calcNode.label())
-                        .add(Records.of(turn(rec(calcNode.label()), rec(Double.toString(calcNode.data())))))));
+                        .add(Records.of(turn(rec(calcNode.label()),
+                                rec("data:" + calcNode.data()),
+                                rec("grad:" + calcNode.grad())
+                        )))));
 
         for(CalcNode calcNode: calcNodes){
             if(calcNode.hasChildren()){
                 for(UUID child: calcNode.children().stream().map(UUID::fromString).toList()){
                     if(calcNode.hasOperation()){
-                        MutableNode opNode = mutNode(calcNode.operation()).addLink(nodeByUuid.get(calcNode.nodeId()));
-                        opNode.add(Shape.CIRCLE);
+                        MutableNode opNode = mutNode(calcNode.operation()).add(Shape.CIRCLE).addLink(nodeByUuid.get(calcNode.nodeId()));
                         nodeByUuid.put(UUID.randomUUID(), opNode);
                         nodeByUuid.get(child).addLink(opNode);
                     } else {
@@ -53,7 +55,6 @@ public class Grapher {
                 }
             }
         }
-
         Graph withNodes = graph.with(nodeByUuid.values().stream().toList());
         Graphviz.fromGraph(withNodes).render(Format.PNG).toFile(new File("./output/graph.png"));
     }
@@ -65,7 +66,7 @@ public class Grapher {
                 .toList();
     }
 
-    public record CalcNode(UUID nodeId, double data, List<String> children, String operation, String label){
+    public record CalcNode(UUID nodeId, double data, double grad, List<String> children, String operation, String label){
         public boolean hasChildren(){
             return !children.isEmpty();
         }
