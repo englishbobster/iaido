@@ -2,15 +2,18 @@ package org.stos.iaido;
 
 public class IaiDo {
     public static void main(String[] args) {
-        CalcNode A = new CalcNode(-3.0, "A");
-        CalcNode B = new CalcNode(2.0, "B");
-        CalcNode C = A.multiply(B);
-        C.setLabel("C");
+        CalcNode a = new CalcNode(2.0, "a");
+        CalcNode b = new CalcNode(-3.0, "b");
+        CalcNode c = new CalcNode(10.0, "c");
+        CalcNode e = a.multiply(b);
+        e.setLabel("e");
+        CalcNode d = e.add(c);
+        d.setLabel("d");
+        CalcNode f = new CalcNode(-2.0, "f");
+        CalcNode L = d.multiply(f);
+        L.setLabel("L");
 
-        CalcNode D = new CalcNode(10.0, "D");
-        CalcNode E = C.add(D);
-        E.setLabel("E");
-
-        JsonExporter.toFile(E);
+        new BackPropagator().backProp(L);
+        JsonExporter.toFile(L);
     }
 }

@@ -30,11 +30,32 @@ public class CalcNode {
         return children;
     }
 
+    public boolean hasChildren(){
+        return !children.isEmpty();
+    }
+
     public void setLabel(String label){
         this.label = label;
     }
-    public String getOperation(){
+
+    public void setGrad(double grad){
+        this.grad = grad;
+    }
+
+    public double getGrad(){
+        return grad;
+    }
+
+    public double getData(){
+        return data;
+    }
+
+    public String getOperationSymbol(){
         return this.operation.symbol();
+    }
+
+    public Operation getOperation(){
+        return this.operation;
     }
 
     public String getNodeId(){
@@ -75,7 +96,7 @@ public class CalcNode {
                 + "\t\"data\": " + data + ",\n"
                 + "\t\"grad\": " + grad + ",\n"
                 + "\t\"label\": " + (label.isEmpty()? "\"\"" : "\"" + label + "\"") + ",\n"
-                + "\t\"operation\": " +  "\""+ getOperation() +"\""  + ",\n"
+                + "\t\"operation\": " +  "\""+ getOperationSymbol() +"\""  + ",\n"
                 + "\t\"children\": "
                 + (children.isEmpty() ? "[]" : children.stream().map(child -> "\"" + child.nodeId + "\"")
                 .collect(Collectors.joining(", ","[\n","\n]")))
@@ -107,7 +128,7 @@ public class CalcNode {
         }
     }
 
-    private enum Operation{
+    public enum Operation{
         ADD("+"), MULTIPLY("*"), NO_OP("");
 
         private final String symbol;

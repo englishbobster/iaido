@@ -21,8 +21,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static guru.nidi.graphviz.attribute.Rank.RankDir.LEFT_TO_RIGHT;
-import static guru.nidi.graphviz.attribute.Records.rec;
-import static guru.nidi.graphviz.attribute.Records.turn;
+import static guru.nidi.graphviz.attribute.Records.*;
 import static guru.nidi.graphviz.model.Factory.graph;
 import static guru.nidi.graphviz.model.Factory.mutNode;
 
@@ -46,7 +45,7 @@ public class Grapher {
             if(calcNode.hasChildren()){
                 for(UUID child: calcNode.children().stream().map(UUID::fromString).toList()){
                     if(calcNode.hasOperation()){
-                        MutableNode opNode = mutNode(calcNode.operation()).add(Shape.CIRCLE).addLink(nodeByUuid.get(calcNode.nodeId()));
+                        MutableNode opNode = mutNode(calcNode.toString()).add(label(calcNode.operation())).add(Shape.CIRCLE).addLink(nodeByUuid.get(calcNode.nodeId()));
                         nodeByUuid.put(UUID.randomUUID(), opNode);
                         nodeByUuid.get(child).addLink(opNode);
                     } else {
