@@ -12,18 +12,18 @@ public class CalcNode {
     private final Operation operation;
     private String label;
 
-    public CalcNode(double data, Pair children, Operation operation) {
+    public CalcNode(double data, String label) {
+        this.data = data;
+        this.operation = Operation.NO_OP;
+        this.label = label;
+    }
+
+    private CalcNode(double data, Pair children, Operation operation) {
         this.children.add(children.A);
         this.children.add(children.B);
         this.data = data;
         this.operation = operation;
         this.label = "";
-    }
-
-    public CalcNode(double data, String label) {
-        this.data = data;
-        this.operation = Operation.NO_OP;
-        this.label = label;
     }
 
     public Set<CalcNode> getChildren() {

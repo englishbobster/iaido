@@ -4,6 +4,9 @@ import org.stos.iaido.CalcNode.Operation;
 
 import java.util.List;
 
+import static org.stos.iaido.CalcNode.Operation.*;
+import static org.stos.iaido.CalcNode.Operation.ADD;
+
 public class BackPropagator {
 
     /**
@@ -28,10 +31,10 @@ public class BackPropagator {
 
     private void updateChildren(CalcNode root) {
         if(root.hasChildren()) {
-            if (Operation.ADD.equals(root.getOperation())) {
+            if (ADD.equals(root.getOperation())) {
                 root.getChildren().forEach(child -> child.setGrad(root.getGrad()));
             }
-            if (Operation.MULTIPLY.equals(root.getOperation())) {
+            if (MULTIPLY.equals(root.getOperation())) {
                 List<CalcNode> children = root.getChildren().stream().toList();
                 children.get(0).setGrad(root.getGrad() * children.get(1).getData());
                 children.get(1).setGrad(root.getGrad() * children.get(0).getData());

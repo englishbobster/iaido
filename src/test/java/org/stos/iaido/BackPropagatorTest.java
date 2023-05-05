@@ -23,6 +23,7 @@ public class BackPropagatorTest {
         //when
         new BackPropagator().backProp(L);
 
+        //then
         assertThat(a.getGrad()).isEqualTo(6.0);
         assertThat(b.getGrad()).isEqualTo(-4.0);
         assertThat(c.getGrad()).isEqualTo(-2.0);
