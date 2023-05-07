@@ -7,7 +7,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class BackPropagatorTest {
 
     @Test
-    void shouldBackPropagate() {
+    void shouldBackPropagateOnSimpleArithmeticChain() {
         //given
         CalcNode a = new CalcNode(2.0, "a");
         CalcNode b = new CalcNode(-3.0, "b");

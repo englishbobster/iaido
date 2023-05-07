@@ -18,9 +18,8 @@ public class CalcNode {
         this.label = label;
     }
 
-    private CalcNode(double data, Pair children, Operation operation) {
-        this.children.add(children.A);
-        this.children.add(children.B);
+    private CalcNode(double data, List<CalcNode> children, Operation operation) {
+        this.children.addAll(children);
         this.data = data;
         this.operation = operation;
         this.label = "";
@@ -63,16 +62,21 @@ public class CalcNode {
     }
 
     public CalcNode add(CalcNode other) {
-        return new CalcNode(this.data + other.data, Pair.of(this, other), Operation.ADD);
+        return new CalcNode(this.data + other.data, List.of(this, other), Operation.ADD);
     }
 
     public CalcNode multiply(CalcNode other) {
-        return new CalcNode(this.data * other.data, Pair.of(this, other), Operation.MULTIPLY);
+        return new CalcNode(this.data * other.data, List.of(this, other), Operation.MULTIPLY);
+    }
+
+    public CalcNode tanh(){
+        double t = (Math.exp(2 * this.data) - 1) / (Math.exp(2 * this.data) + 1);
+        return new CalcNode(t, List.of(this), Operation.TANH);
     }
 
 
     public List<CalcNode> toList(){
-        Set<CalcNode> list = toList(new HashSet<CalcNode>());
+        Set<CalcNode> list = toList(new HashSet<>());
         return list.stream().toList();
     }
 
@@ -108,13 +112,15 @@ public class CalcNode {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         CalcNode calcNode = (CalcNode) o;
-        return Double.compare(calcNode.data, data) == 0;
+        return Double.compare(calcNode.data, data) == 0 && calcNode.label.equals(label);
     }
 
     @Override
     public int hashCode() {
         long temp = Double.doubleToLongBits(data);
-        return (int) (temp ^ (temp >>> 32));
+        temp = (temp ^ (temp >>> 32));
+        temp *= label.hashCode();
+        return (int) temp;
     }
 
     private record Pair(CalcNode A, CalcNode B){
@@ -129,7 +135,7 @@ public class CalcNode {
     }
 
     public enum Operation{
-        ADD("+"), MULTIPLY("*"), NO_OP("");
+        ADD("+"), MULTIPLY("*"), TANH("tanh"), NO_OP("");
 
         private final String symbol;
 
@@ -141,5 +147,4 @@ public class CalcNode {
             return this.symbol;
         }
     }
-
 }
