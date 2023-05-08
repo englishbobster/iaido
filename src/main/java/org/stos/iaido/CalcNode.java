@@ -123,17 +123,6 @@ public class CalcNode {
         return (int) temp;
     }
 
-    private record Pair(CalcNode A, CalcNode B){
-        static Pair of(CalcNode A, CalcNode B){
-            return new Pair(A, B);
-        }
-
-        @Override
-        public String toString(){
-            return A.getNodeId() + "," + B.getNodeId();
-        }
-    }
-
     public enum Operation{
         ADD("+"), MULTIPLY("*"), TANH("tanh"), NO_OP("");
 

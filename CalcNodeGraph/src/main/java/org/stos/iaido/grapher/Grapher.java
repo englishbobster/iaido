@@ -14,10 +14,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static guru.nidi.graphviz.attribute.Rank.RankDir.LEFT_TO_RIGHT;
@@ -37,9 +34,9 @@ public class Grapher {
         Map<UUID, MutableNode> nodeByUuid = calcNodes.stream()
                 .collect(Collectors.toMap(CalcNode::nodeId, calcNode -> mutNode(calcNode.label())
                         .add(Records.of(turn(rec(calcNode.label()),
-                                rec("data:" + calcNode.data()),
-                                rec("grad:" + calcNode.grad())
-                        )))));
+                                rec("data:" + String.format(Locale.ENGLISH, "%.3f", calcNode.data())),
+                                rec("grad:" + String.format(Locale.ENGLISH, "%.3f", calcNode.grad())))))));
+
 
         for(CalcNode calcNode: calcNodes){
             if(calcNode.hasChildren()){
