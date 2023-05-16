@@ -12,7 +12,7 @@ public class IaiDo {
                 w0 = new CalcNode(-3.0, "w0"),
                 w1 = new CalcNode(1.0, "w1");
         //neuron bias
-        CalcNode bias = new CalcNode(6.7, "bias");
+        CalcNode bias = new CalcNode(6.8813735870, "bias"); //adjusted according to karpathy video
 
         //sum of weighted inputs and bias
         CalcNode x0w0 = x0.multiply(w0); x0w0.setLabel("x0w0");
@@ -21,6 +21,7 @@ public class IaiDo {
         CalcNode addBias = sumInputs.add(bias); addBias.setLabel("n");
 
         CalcNode output = addBias.tanh(); output.setLabel("output");
+        new BackPropagator().backProp(output);
         JsonExporter.toFile(output);
     }
 }

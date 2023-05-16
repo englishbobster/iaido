@@ -39,6 +39,10 @@ public class BackPropagator {
                 children.get(0).setGrad(root.getGrad() * children.get(1).getData());
                 children.get(1).setGrad(root.getGrad() * children.get(0).getData());
             }
+            if (TANH.equals(root.getOperation()))  { //derivative of tanh x is 1- tan^2 (x)
+                List<CalcNode> children = root.getChildren().stream().toList();
+                children.forEach(child -> child.setGrad(1 - (root.getData() * root.getData())));
+            }
             root.getChildren().forEach(this::updateChildren);
         }
     }
