@@ -51,12 +51,12 @@ public class CalcNode {
 
     private void updateChildren(CalcNode root) {
         if(root.hasChildren()) {
-            root.backprop();
+            root.localDerivative();
             root.getChildren().forEach(this::updateChildren);
         }
     }
 
-    public void backprop(){
+    public void localDerivative(){
         this.differential.accept(this);
     }
 
@@ -110,6 +110,17 @@ public class CalcNode {
         return out;
     }
 
+    public CalcNode add(Integer other) {
+        CalcNode constant = new CalcNode(other.doubleValue(), "CONST_" + other);
+        CalcNode out = new CalcNode(this.data + constant.data, List.of(this, constant), Operation.ADD);
+        Consumer<CalcNode> backProp = cn -> {
+            this.grad += out.getGrad();
+            constant.grad = out.getGrad();
+        };
+        out.setDifferential(backProp);
+        return out;
+    }
+
     public CalcNode multiply(CalcNode other) {
         CalcNode out = new CalcNode(this.data * other.data, List.of(this, other), Operation.MULTIPLY);
         Consumer<CalcNode> backProp = cn -> {
@@ -120,10 +131,28 @@ public class CalcNode {
         return out;
     }
 
+    public CalcNode multiply(Integer other) {
+        CalcNode constant = new CalcNode(other.doubleValue(), "CONST_" + other);
+        CalcNode out = new CalcNode(this.data * constant.data, List.of(this, constant), Operation.MULTIPLY);
+        Consumer<CalcNode> backProp = cn -> {
+            this.grad += (out.getGrad() * constant.getData());
+            constant.grad += (out.getGrad() * this.getData());
+        };
+        out.setDifferential(backProp);
+        return out;
+    }
+
     public CalcNode tanh(){
         double t = (Math.exp(2 * this.data) - 1) / (Math.exp(2 * this.data) + 1);
         CalcNode out = new CalcNode(t, List.of(this), Operation.TANH);
         Consumer<CalcNode> backProp = cn -> this.grad += ((1 - (t * t)) * out.getGrad());
+        out.setDifferential(backProp);
+        return out;
+    }
+
+    public CalcNode exp(){
+        CalcNode out = new CalcNode(Math.exp(this.data), List.of(this), Operation.EXP);
+        Consumer<CalcNode> backProp = cn -> this.grad += out.getData() * out.getGrad();
         out.setDifferential(backProp);
         return out;
     }
@@ -177,7 +206,7 @@ public class CalcNode {
     }
 
     public enum Operation{
-        ADD("+"), MULTIPLY("*"), TANH("tanh"), NO_OP("");
+        ADD("+"), MULTIPLY("*"), TANH("tanh"), NO_OP(""), EXP("e");
 
         private final String symbol;
 

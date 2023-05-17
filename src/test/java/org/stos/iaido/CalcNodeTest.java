@@ -38,6 +38,20 @@ public class CalcNodeTest {
     }
 
     @Test
+    void tanhIsCorrect() {
+        CalcNode A = new CalcNode(1, "A");
+        CalcNode B = A.tanh();
+        assertThat(B.getData()).isCloseTo(0.761, offset(0.001));
+    }
+
+    @Test
+    void e_IsCorrect() {
+        CalcNode A = new CalcNode(1, "A");
+        CalcNode B = A.exp();
+        assertThat(B.getData()).isCloseTo(2.71828, offset(0.001));
+    }
+
+    @Test
     void resultSetsChildrenCorrectly() {
         CalcNode A = new CalcNode(10.0, "A");
         CalcNode B = new CalcNode(4.0, "B");
@@ -106,7 +120,7 @@ public class CalcNodeTest {
         CalcNode C =  A.add(B);
         C.setGrad(10.0);
 
-        C.backprop();
+        C.localDerivative();
         assertThat(C.getGrad()).isEqualTo(10.0);
         assertThat(A.getGrad()).isEqualTo(10.0);
         assertThat(B.getGrad()).isEqualTo(10.0);
@@ -119,7 +133,7 @@ public class CalcNodeTest {
         CalcNode C =  A.multiply(B);
         C.setGrad(10.0);
 
-        C.backprop();
+        C.localDerivative();
         assertThat(C.getGrad()).isEqualTo(10.0);
         assertThat(A.getGrad()).isEqualTo(30.0);
         assertThat(B.getGrad()).isEqualTo(20.0);
@@ -131,7 +145,23 @@ public class CalcNodeTest {
         CalcNode B = A.tanh();
         B.setGrad(1.0);
 
-        B.backprop();
+        B.localDerivative();
         assertThat(A.getGrad()).isCloseTo(0.5, offset(0.0005));
+    }
+
+    @Test
+    void allowsConstantAddition() {
+        CalcNode A = new CalcNode(1.0, "A");
+        CalcNode B = A.add(1);
+
+        assertThat(B.getData()).isEqualTo(2.0);
+    }
+
+    @Test
+    void allowsConstantMultiplication() {
+        CalcNode A = new CalcNode(2.0, "A");
+        CalcNode B = A.multiply(10);
+
+        assertThat(B.getData()).isEqualTo(20.0);
     }
 }
