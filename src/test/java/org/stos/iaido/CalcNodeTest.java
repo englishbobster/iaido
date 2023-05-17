@@ -59,6 +59,26 @@ public class CalcNodeTest {
     }
 
     @Test
+    void additionWithSelf() {
+        CalcNode A = new CalcNode(3.0, "A");
+        CalcNode B = A.add(A);
+        B.backPropagate();
+
+        assertThat(B.getData()).isEqualTo(6.0);
+        assertThat(A.getGrad()).isEqualTo(2.0);
+    }
+
+    @Test
+    void multiplicationWithSelf() {
+        CalcNode A = new CalcNode(3.0, "A");
+        CalcNode B = A.multiply(A);
+        B.backPropagate();
+
+        assertThat(B.getData()).isEqualTo(9.0);
+        assertThat(A.getGrad()).isEqualTo(6.0);
+    }
+
+    @Test
     void listifyParentAndChildren_3_nodes() {
         CalcNode A = new CalcNode(10.0, "A");
         CalcNode B = new CalcNode(4.0, "B");

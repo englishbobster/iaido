@@ -103,8 +103,8 @@ public class CalcNode {
     public CalcNode add(CalcNode other) {
         CalcNode out = new CalcNode(this.data + other.data, List.of(this, other), Operation.ADD);
         Consumer<CalcNode> backProp = cn -> {
-            this.setGrad(out.getGrad());
-            other.setGrad(out.getGrad());
+            this.grad += out.getGrad();
+            other.grad += out.getGrad();
         };
         out.setDifferential(backProp);
         return out;
@@ -113,8 +113,8 @@ public class CalcNode {
     public CalcNode multiply(CalcNode other) {
         CalcNode out = new CalcNode(this.data * other.data, List.of(this, other), Operation.MULTIPLY);
         Consumer<CalcNode> backProp = cn -> {
-            this.setGrad(out.getGrad() * other.getData());
-            other.setGrad(out.getGrad() * this.getData());
+            this.grad += (out.getGrad() * other.getData());
+            other.grad += (out.getGrad() * this.getData());
         };
         out.setDifferential(backProp);
         return out;
@@ -123,7 +123,7 @@ public class CalcNode {
     public CalcNode tanh(){
         double t = (Math.exp(2 * this.data) - 1) / (Math.exp(2 * this.data) + 1);
         CalcNode out = new CalcNode(t, List.of(this), Operation.TANH);
-        Consumer<CalcNode> backProp = cn -> this.setGrad((1 - (t * t)) * out.getGrad());
+        Consumer<CalcNode> backProp = cn -> this.grad += ((1 - (t * t)) * out.getGrad());
         out.setDifferential(backProp);
         return out;
     }
