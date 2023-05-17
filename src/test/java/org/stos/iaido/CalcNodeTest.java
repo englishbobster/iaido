@@ -48,7 +48,7 @@ public class CalcNodeTest {
     void e_IsCorrect() {
         CalcNode A = new CalcNode(1, "A");
         CalcNode B = A.exp();
-        assertThat(B.getData()).isCloseTo(2.71828, offset(0.001));
+        assertThat(B.getData()).isEqualTo(Math.E);
     }
 
     @Test
