@@ -1,6 +1,7 @@
 package org.stos.iaido;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class CalcNode {
@@ -11,18 +12,29 @@ public class CalcNode {
     private final Set<CalcNode> children = new HashSet<>();
     private final Operation operation;
     private String label;
+    private Consumer<CalcNode> differential;
 
     public CalcNode(double data, String label) {
         this.data = data;
         this.operation = Operation.NO_OP;
         this.label = label;
+        this.differential = cn -> {};
     }
 
     private CalcNode(double data, List<CalcNode> children, Operation operation) {
+        this.differential = differential;
         this.children.addAll(children);
         this.data = data;
         this.operation = operation;
         this.label = "";
+    }
+
+    public void backprop(){
+        this.differential.accept(this);
+    }
+
+    private void setDifferential(Consumer<CalcNode> differential){
+        this.differential = differential;
     }
 
     public Set<CalcNode> getChildren() {
@@ -62,18 +74,32 @@ public class CalcNode {
     }
 
     public CalcNode add(CalcNode other) {
-        return new CalcNode(this.data + other.data, List.of(this, other), Operation.ADD);
+        CalcNode out = new CalcNode(this.data + other.data, List.of(this, other), Operation.ADD);
+        Consumer<CalcNode> backProp = cn -> {
+            this.setGrad(out.getGrad());
+            other.setGrad(out.getGrad());
+        };
+        out.setDifferential(backProp);
+        return out;
     }
 
     public CalcNode multiply(CalcNode other) {
-        return new CalcNode(this.data * other.data, List.of(this, other), Operation.MULTIPLY);
+        CalcNode out = new CalcNode(this.data * other.data, List.of(this, other), Operation.MULTIPLY);
+        Consumer<CalcNode> backProp = cn -> {
+            this.setGrad(out.getGrad() * other.getData());
+            other.setGrad(out.getGrad() * this.getData());
+        };
+        out.setDifferential(backProp);
+        return out;
     }
 
     public CalcNode tanh(){
         double t = (Math.exp(2 * this.data) - 1) / (Math.exp(2 * this.data) + 1);
-        return new CalcNode(t, List.of(this), Operation.TANH);
+        CalcNode out = new CalcNode(t, List.of(this), Operation.TANH);
+        Consumer<CalcNode> backProp = cn -> this.setGrad((1 - (t * t)) * out.getGrad());
+        out.setDifferential(backProp);
+        return out;
     }
-
 
     public List<CalcNode> toList(){
         Set<CalcNode> list = toList(new HashSet<>());
