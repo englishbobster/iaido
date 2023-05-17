@@ -21,7 +21,7 @@ public class IaiDo {
         CalcNode addBias = sumInputs.add(bias); addBias.setLabel("n");
 
         CalcNode output = addBias.tanh(); output.setLabel("output");
-        new BackPropagator().backProp(output);
+        output.backPropagate();
         JsonExporter.toFile(output);
     }
 }

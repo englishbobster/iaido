@@ -4,6 +4,21 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+/**
+ * backpropagation rules:
+ * Back propagation is basically the chain rule in action:
+ * To distribute gradiant values backwards through the graph follow these rules:
+ * Root node grad is 1.00
+ * multiplication parent: current child node grad = parent node grad * sibling node data
+ * addition parent: current node grad = parent node (addition distributes parent grad)
+ * <p>
+ * <p>
+ * nudge leaf node data (available inputs) by small amount and recalculate data
+ * node data += (small amount * node grad)
+ * <p>
+ * recalculate all node gradients according to the rules.
+ **/
+
 public class CalcNode {
 
     private final UUID nodeId = UUID.randomUUID();
@@ -22,11 +37,23 @@ public class CalcNode {
     }
 
     private CalcNode(double data, List<CalcNode> children, Operation operation) {
-        this.differential = differential;
+        this.differential = cn -> {};
         this.children.addAll(children);
         this.data = data;
         this.operation = operation;
         this.label = "";
+    }
+
+    public void backPropagate() {
+        this.setGrad(1.00);
+        updateChildren(this);
+    }
+
+    private void updateChildren(CalcNode root) {
+        if(root.hasChildren()) {
+            root.backprop();
+            root.getChildren().forEach(this::updateChildren);
+        }
     }
 
     public void backprop(){

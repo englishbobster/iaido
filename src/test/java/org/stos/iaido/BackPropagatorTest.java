@@ -22,7 +22,7 @@ public class BackPropagatorTest {
         L.setLabel("L");
 
         //when
-        new BackPropagator().backProp(L);
+        L.backPropagate();
 
         //then
         assertThat(a.getGrad()).isEqualTo(6.0);
@@ -55,7 +55,7 @@ public class BackPropagatorTest {
         CalcNode addBias = sumInputs.add(bias); addBias.setLabel("n");
 
         CalcNode output = addBias.tanh(); output.setLabel("output");
-        new BackPropagator().backProp(output);
+        output.backPropagate();
 
         assertThat(x0.getGrad()).isCloseTo(-1.5, offset(0.001));
         assertThat(w0.getGrad()).isCloseTo(1, offset(0.001));
@@ -67,6 +67,5 @@ public class BackPropagatorTest {
         assertThat(bias.getGrad()).isCloseTo(0.5, offset(0.001));
         assertThat(addBias.getGrad()).isCloseTo(0.5, offset(0.001));
         assertThat(output.getGrad()).isEqualTo(1);
-
     }
 }
