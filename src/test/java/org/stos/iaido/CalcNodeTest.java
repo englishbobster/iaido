@@ -38,6 +38,14 @@ public class CalcNodeTest {
     }
 
     @Test
+    void dividesCompNodes() {
+        CalcNode A = new CalcNode(10.0, "A");
+        CalcNode B = new CalcNode(5.0, "B");
+        CalcNode C = A.dividedBy(B);
+        assertThat(C.getData()).isEqualTo(2.0);
+    }
+
+    @Test
     void tanhIsCorrect() {
         CalcNode A = new CalcNode(1, "A");
         CalcNode B = A.tanh();
@@ -73,7 +81,7 @@ public class CalcNodeTest {
     }
 
     @Test
-    void additionWithSelf() {
+    void additionWithSelf_gradientsShouldAccumulate() {
         CalcNode A = new CalcNode(3.0, "A");
         CalcNode B = A.add(A);
         B.backPropagate();
@@ -83,7 +91,7 @@ public class CalcNodeTest {
     }
 
     @Test
-    void multiplicationWithSelf() {
+    void multiplicationWithSelf_gradientsShouldAccumulate() {
         CalcNode A = new CalcNode(3.0, "A");
         CalcNode B = A.multiply(A);
         B.backPropagate();
@@ -164,4 +172,5 @@ public class CalcNodeTest {
 
         assertThat(B.getData()).isEqualTo(20.0);
     }
+
 }

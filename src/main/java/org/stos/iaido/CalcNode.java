@@ -157,6 +157,13 @@ public class CalcNode {
         return out;
     }
 
+    public CalcNode dividedBy(CalcNode other){
+        CalcNode out = new CalcNode(this.data * Math.pow(other.data, -1), List.of(this, other), Operation.DIV);
+        Consumer<CalcNode> backprop = cn -> this.grad += ((this.data - other.data) / (this.data * this.data));
+        out.setDifferential(backprop);
+        return out;
+    }
+
     public List<CalcNode> toList(){
         Set<CalcNode> list = toList(new HashSet<>());
         return list.stream().toList();
@@ -206,7 +213,8 @@ public class CalcNode {
     }
 
     public enum Operation{
-        ADD("+"), MULTIPLY("*"), TANH("tanh"), NO_OP(""), EXP("e");
+        ADD("+"), MULTIPLY("*"), TANH("tanh"),
+        NO_OP(""), EXP("e"), DIV("/"), SUBTRACT("-");
 
         private final String symbol;
 
