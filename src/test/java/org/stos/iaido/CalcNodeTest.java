@@ -16,12 +16,27 @@ public class CalcNodeTest {
     }
 
     @Test
+    void subtractCompNodes() {
+        CalcNode A = new CalcNode(3.0, "A");
+        CalcNode B = new CalcNode(7.0, "B");
+        CalcNode C = A.subtract(B);
+        assertThat(C).isEqualTo(new CalcNode(-4.0, ""));
+    }
+
+    @Test
     void multipliesCompNodes() {
         CalcNode A = new CalcNode(3.0, "A");
         CalcNode B = new CalcNode(7.0, "B");
         CalcNode C = A.multiply(B);
 
         assertThat(C).isEqualTo(new CalcNode(21.0, ""));
+    }
+
+    @Test
+    void negates() {
+        CalcNode A = new CalcNode(3.0, "A");
+        CalcNode negatedA = A.negate();
+        assertThat(negatedA.getData()).isEqualTo(-3.0);
     }
 
     @Test
@@ -41,7 +56,7 @@ public class CalcNodeTest {
     void dividesCompNodes() {
         CalcNode A = new CalcNode(10.0, "A");
         CalcNode B = new CalcNode(5.0, "B");
-        CalcNode C = A.dividedBy(B);
+        CalcNode C = A.divide(B);
         assertThat(C.getData()).isEqualTo(2.0);
     }
 
@@ -57,6 +72,13 @@ public class CalcNodeTest {
         CalcNode A = new CalcNode(1, "A");
         CalcNode B = A.exp();
         assertThat(B.getData()).isEqualTo(Math.E);
+    }
+
+    @Test
+    void powerOf() {
+        CalcNode A = new CalcNode(3, "A");
+        CalcNode B = A.powerOf(3);
+        assertThat(B.getData()).isEqualTo(27.0);
     }
 
     @Test

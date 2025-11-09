@@ -68,4 +68,6 @@ public class BackPropagatorTest {
         assertThat(addBias.getGrad()).isCloseTo(0.5, offset(0.001));
         assertThat(output.getGrad()).isEqualTo(1);
     }
+
+
 }

@@ -25,7 +25,7 @@ public class CalcNode {
     private final double data;
     private double grad = 0;
     private final Set<CalcNode> children = new HashSet<>();
-    private final Operation operation;
+    private Operation operation;
     private String label;
     private Consumer<CalcNode> differential;
 
@@ -74,6 +74,10 @@ public class CalcNode {
 
     public void setLabel(String label){
         this.label = label;
+    }
+
+    public void setOperation(Operation operation){
+        this.operation = operation;
     }
 
     public void setGrad(double grad){
@@ -142,6 +146,17 @@ public class CalcNode {
         return out;
     }
 
+    public CalcNode negate() {
+        return this.multiply(-1);
+    }
+
+    public CalcNode subtract(CalcNode other) {
+        CalcNode subtracted = this.add(other.negate());
+        subtracted.setOperation(Operation.SUBTRACT);
+        return subtracted;
+    }
+
+
     public CalcNode tanh(){
         double t = (Math.exp(2 * this.data) - 1) / (Math.exp(2 * this.data) + 1);
         CalcNode out = new CalcNode(t, List.of(this), Operation.TANH);
@@ -157,10 +172,17 @@ public class CalcNode {
         return out;
     }
 
-    public CalcNode dividedBy(CalcNode other){
+    public CalcNode divide(CalcNode other){
         CalcNode out = new CalcNode(this.data * Math.pow(other.data, -1), List.of(this, other), Operation.DIV);
         Consumer<CalcNode> backprop = cn -> this.grad += ((this.data - other.data) / (this.data * this.data));
         out.setDifferential(backprop);
+        return out;
+    }
+
+    public CalcNode powerOf(double power){
+        CalcNode out = new CalcNode(Math.pow(this.data, power), List.of(this), Operation.POWER_OF );
+        Consumer<CalcNode> backProp = cn -> this.grad += power * Math.pow(this.data, (power - 1));
+        out.setDifferential(backProp);
         return out;
     }
 
@@ -214,7 +236,8 @@ public class CalcNode {
 
     public enum Operation{
         ADD("+"), MULTIPLY("*"), TANH("tanh"),
-        NO_OP(""), EXP("e"), DIV("/"), SUBTRACT("-");
+        NO_OP(""), EXP("e"), DIV("/"), SUBTRACT("-"),
+        POWER_OF("↑");
 
         private final String symbol;
 
