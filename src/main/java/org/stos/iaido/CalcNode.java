@@ -96,12 +96,12 @@ public class CalcNode {
         return this.operation.symbol();
     }
 
-    public Operation getOperation(){
-        return this.operation;
+    public UUID getNodeId(){
+        return nodeId;
     }
 
-    public String getNodeId(){
-        return nodeId.toString();
+    public String getLabel(){
+        return label;
     }
 
     public CalcNode add(CalcNode other) {
@@ -125,6 +125,16 @@ public class CalcNode {
         return out;
     }
 
+    public CalcNode negate() {
+        return this.multiply(-1);
+    }
+
+    public CalcNode subtract(CalcNode other) {
+        CalcNode subtracted = this.add(other.negate());
+        subtracted.setOperation(Operation.SUBTRACT);
+        return subtracted;
+    }
+
     public CalcNode multiply(CalcNode other) {
         CalcNode out = new CalcNode(this.data * other.data, List.of(this, other), Operation.MULTIPLY);
         Consumer<CalcNode> backProp = cn -> {
@@ -146,16 +156,18 @@ public class CalcNode {
         return out;
     }
 
-    public CalcNode negate() {
-        return this.multiply(-1);
+    public CalcNode divide(CalcNode other){
+        CalcNode out = new CalcNode(this.data * Math.pow(other.data, -1), List.of(this, other), Operation.DIV);
+        Consumer<CalcNode> backprop = cn -> this.grad += ((this.data - other.data) / (this.data * this.data));
+        out.setDifferential(backprop);
+        return out;
     }
 
-    public CalcNode subtract(CalcNode other) {
-        CalcNode subtracted = this.add(other.negate());
-        subtracted.setOperation(Operation.SUBTRACT);
-        return subtracted;
+    public CalcNode powerDivide(CalcNode other) {
+        CalcNode out = this.multiply(other.powerOf(-1));
+        out.setOperation(Operation.DIV);
+        return out;
     }
-
 
     public CalcNode tanh(){
         double t = (Math.exp(2 * this.data) - 1) / (Math.exp(2 * this.data) + 1);
@@ -166,22 +178,17 @@ public class CalcNode {
     }
 
     public CalcNode exp(){
-        CalcNode out = new CalcNode(Math.exp(this.data), List.of(this), Operation.EXP);
+        double exp = Math.exp(this.data);
+        CalcNode out = new CalcNode(exp, List.of(this), Operation.EXP);
         Consumer<CalcNode> backProp = cn -> this.grad += out.getData() * out.getGrad();
         out.setDifferential(backProp);
         return out;
     }
 
-    public CalcNode divide(CalcNode other){
-        CalcNode out = new CalcNode(this.data * Math.pow(other.data, -1), List.of(this, other), Operation.DIV);
-        Consumer<CalcNode> backprop = cn -> this.grad += ((this.data - other.data) / (this.data * this.data));
-        out.setDifferential(backprop);
-        return out;
-    }
-
     public CalcNode powerOf(double power){
-        CalcNode out = new CalcNode(Math.pow(this.data, power), List.of(this), Operation.POWER_OF );
-        Consumer<CalcNode> backProp = cn -> this.grad += power * Math.pow(this.data, (power - 1));
+        CalcNode constant = new CalcNode(power, "CONST_" + power);
+        CalcNode out = new CalcNode(Math.pow(this.data, constant.getData()), List.of(this, constant), Operation.POWER_OF );
+        Consumer<CalcNode> backProp = cn -> this.grad += constant.getData() * Math.pow(this.data, (constant.getData() - 1)) * out.getGrad();
         out.setDifferential(backProp);
         return out;
     }
@@ -202,20 +209,6 @@ public class CalcNode {
             }
         }
         return nodes;
-    }
-
-    @Override
-    public String toString() {
-        return "{\n"
-                + "\t\"nodeId\": \"" + nodeId + "\",\n"
-                + "\t\"data\": " + data + ",\n"
-                + "\t\"grad\": " + grad + ",\n"
-                + "\t\"label\": " + (label.isEmpty()? "\"\"" : "\"" + label + "\"") + ",\n"
-                + "\t\"operation\": " +  "\""+ getOperationSymbol() +"\""  + ",\n"
-                + "\t\"children\": "
-                + (children.isEmpty() ? "[]" : children.stream().map(child -> "\"" + child.nodeId + "\"")
-                .collect(Collectors.joining(", ","[\n","\n]")))
-                +"\n}";
     }
 
     @Override
