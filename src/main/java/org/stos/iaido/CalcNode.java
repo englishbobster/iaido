@@ -206,4 +206,14 @@ public class CalcNode {
     public int hashCode() {
         return nodeId.hashCode();
     }
+
+    @Override
+    public String toString() {
+        return "CalcNode(" +
+                "label='" + label + '\'' +
+                ", value=" + String.format("%.4f", value) + // Format to 4 decimal places for clean output
+                ", grad=" + String.format("%.4f", grad) +
+                ", op='" + operation + '\'' +
+                ')';
+    }
 }

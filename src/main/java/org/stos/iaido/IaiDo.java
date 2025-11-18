@@ -1,9 +1,16 @@
 package org.stos.iaido;
 
+import java.util.List;
+
 public class IaiDo {
     public static void main(String[] args) {
         expFunctionPerceptron();
         tanhFunctionPerceptron();
+
+        Layer layer = new Layer(2, 3);
+        List<Double> inputs = List.of(2.0, 3.0);
+        List<CalcNode> outputs = layer.prepareLayer().apply(inputs);
+        outputs.forEach(System.out::println);
     }
 
     private static void tanhFunctionPerceptron() {
