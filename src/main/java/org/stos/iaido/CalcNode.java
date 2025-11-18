@@ -2,7 +2,6 @@ package org.stos.iaido;
 
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 /**
  * backpropagation rules:
@@ -22,187 +21,62 @@ import java.util.stream.Collectors;
 public class CalcNode {
 
     private final UUID nodeId = UUID.randomUUID();
-    private final double data;
+    private final double value;
     private double grad = 0;
     private final Set<CalcNode> children = new HashSet<>();
-    private Operation operation;
-    private String label;
-    private Consumer<CalcNode> differential;
+    private String operation = "";
+    private String label = "";
+    private Consumer<CalcNode> differential = calcNode -> {
+    };
 
-    public CalcNode(double data, String label) {
-        this.data = data;
-        this.operation = Operation.NO_OP;
+    public CalcNode(double value, String label) {
+        this.value = value;
         this.label = label;
-        this.differential = cn -> {};
     }
 
-    private CalcNode(double data, List<CalcNode> children, Operation operation) {
-        this.differential = cn -> {};
+    private CalcNode(double value, List<CalcNode> children, String operation) {
         this.children.addAll(children);
-        this.data = data;
+        this.value = value;
         this.operation = operation;
-        this.label = "";
     }
 
     public void backPropagate() {
-        this.setGrad(1.00);
-        updateChildren(this);
+        List<CalcNode> actualTopo = new ArrayList<>();
+        Set<CalcNode> visited = new HashSet<>();
+        buildTopo(this, actualTopo, visited);
+
+        this.grad = 1.00;
+        actualTopo.reversed().forEach(CalcNode::localDerivative);
     }
 
-    private void updateChildren(CalcNode root) {
-        if(root.hasChildren()) {
-            root.localDerivative();
-            root.getChildren().forEach(this::updateChildren);
+    private void buildTopo(CalcNode root, List<CalcNode> actualTopo, Set<CalcNode> visited) {
+        if (!visited.contains(root)) {
+            visited.add(root);
+            for (CalcNode child : root.children) {
+                buildTopo(child, actualTopo, visited);
+            }
+            actualTopo.add(root);
         }
     }
 
-    public void localDerivative(){
+    public void localDerivative() {
         this.differential.accept(this);
-    }
-
-    private void setDifferential(Consumer<CalcNode> differential){
-        this.differential = differential;
     }
 
     public Set<CalcNode> getChildren() {
         return children;
     }
 
-    public boolean hasChildren(){
-        return !children.isEmpty();
-    }
-
-    public void setLabel(String label){
-        this.label = label;
-    }
-
-    public void setOperation(Operation operation){
-        this.operation = operation;
-    }
-
-    public void setGrad(double grad){
-        this.grad = grad;
-    }
-
-    public double getGrad(){
-        return grad;
-    }
-
-    public double getData(){
-        return data;
-    }
-
-    public String getOperationSymbol(){
-        return this.operation.symbol();
-    }
-
-    public UUID getNodeId(){
-        return nodeId;
-    }
-
-    public String getLabel(){
-        return label;
-    }
-
-    public CalcNode add(CalcNode other) {
-        CalcNode out = new CalcNode(this.data + other.data, List.of(this, other), Operation.ADD);
-        Consumer<CalcNode> backProp = cn -> {
-            this.grad += out.getGrad();
-            other.grad += out.getGrad();
-        };
-        out.setDifferential(backProp);
-        return out;
-    }
-
-    public CalcNode add(Integer other) {
-        CalcNode constant = new CalcNode(other.doubleValue(), "CONST_" + other);
-        CalcNode out = new CalcNode(this.data + constant.data, List.of(this, constant), Operation.ADD);
-        Consumer<CalcNode> backProp = cn -> {
-            this.grad += out.getGrad();
-            constant.grad = out.getGrad();
-        };
-        out.setDifferential(backProp);
-        return out;
-    }
-
-    public CalcNode negate() {
-        return this.multiply(-1);
-    }
-
-    public CalcNode subtract(CalcNode other) {
-        CalcNode subtracted = this.add(other.negate());
-        subtracted.setOperation(Operation.SUBTRACT);
-        return subtracted;
-    }
-
-    public CalcNode multiply(CalcNode other) {
-        CalcNode out = new CalcNode(this.data * other.data, List.of(this, other), Operation.MULTIPLY);
-        Consumer<CalcNode> backProp = cn -> {
-            this.grad += (out.getGrad() * other.getData());
-            other.grad += (out.getGrad() * this.getData());
-        };
-        out.setDifferential(backProp);
-        return out;
-    }
-
-    public CalcNode multiply(Integer other) {
-        CalcNode constant = new CalcNode(other.doubleValue(), "CONST_" + other);
-        CalcNode out = new CalcNode(this.data * constant.data, List.of(this, constant), Operation.MULTIPLY);
-        Consumer<CalcNode> backProp = cn -> {
-            this.grad += (out.getGrad() * constant.getData());
-            constant.grad += (out.getGrad() * this.getData());
-        };
-        out.setDifferential(backProp);
-        return out;
-    }
-
-    public CalcNode divide(CalcNode other){
-        CalcNode out = new CalcNode(this.data * Math.pow(other.data, -1), List.of(this, other), Operation.DIV);
-        Consumer<CalcNode> backprop = cn -> this.grad += ((this.data - other.data) / (this.data * this.data));
-        out.setDifferential(backprop);
-        return out;
-    }
-
-    public CalcNode powerDivide(CalcNode other) {
-        CalcNode out = this.multiply(other.powerOf(-1));
-        out.setOperation(Operation.DIV);
-        return out;
-    }
-
-    public CalcNode tanh(){
-        double t = (Math.exp(2 * this.data) - 1) / (Math.exp(2 * this.data) + 1);
-        CalcNode out = new CalcNode(t, List.of(this), Operation.TANH);
-        Consumer<CalcNode> backProp = cn -> this.grad += ((1 - (t * t)) * out.getGrad());
-        out.setDifferential(backProp);
-        return out;
-    }
-
-    public CalcNode exp(){
-        double exp = Math.exp(this.data);
-        CalcNode out = new CalcNode(exp, List.of(this), Operation.EXP);
-        Consumer<CalcNode> backProp = cn -> this.grad += out.getData() * out.getGrad();
-        out.setDifferential(backProp);
-        return out;
-    }
-
-    public CalcNode powerOf(double power){
-        CalcNode constant = new CalcNode(power, "CONST_" + power);
-        CalcNode out = new CalcNode(Math.pow(this.data, constant.getData()), List.of(this, constant), Operation.POWER_OF );
-        Consumer<CalcNode> backProp = cn -> this.grad += constant.getData() * Math.pow(this.data, (constant.getData() - 1)) * out.getGrad();
-        out.setDifferential(backProp);
-        return out;
-    }
-
-    public List<CalcNode> toList(){
+    public List<CalcNode> toList() {
         Set<CalcNode> list = toList(new HashSet<>());
         return list.stream().toList();
     }
 
-    private Set<CalcNode> toList(Set<CalcNode> nodes){
+    private Set<CalcNode> toList(Set<CalcNode> nodes) {
         Set<CalcNode> kids = this.getChildren();
         nodes.add(this);
-        for(CalcNode kid: kids){
-            if(kid.getChildren().isEmpty()) {
+        for (CalcNode kid : kids) {
+            if (kid.getChildren().isEmpty()) {
                 nodes.add(kid);
             } else {
                 kid.toList(nodes);
@@ -211,35 +85,134 @@ public class CalcNode {
         return nodes;
     }
 
+    public boolean hasChildren() {
+        return !children.isEmpty();
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
+    public void setOperation(String operation) {
+        this.operation = operation;
+    }
+
+    public void setGrad(double grad) {
+        this.grad = grad;
+    }
+
+    public double getGrad() {
+        return grad;
+    }
+
+    public double getValue() {
+        return value;
+    }
+
+    public String getOperationSymbol() {
+        return this.operation;
+    }
+
+    public UUID getNodeId() {
+        return nodeId;
+    }
+
+    public String getLabel() {
+        return label;
+    }
+
+    public CalcNode add(CalcNode other) {
+        CalcNode out = new CalcNode(this.value + other.value, List.of(this, other), "+");
+        out.differential = cn -> {
+            this.grad += out.getGrad();
+            other.grad += out.getGrad();
+        };
+        return out;
+    }
+
+    public CalcNode add(double other) {
+        CalcNode constant = new CalcNode(other, "?");
+        CalcNode out = new CalcNode(this.value + constant.value, List.of(this, constant), "+");
+        out.differential = cn -> {
+            this.grad += out.getGrad();
+            constant.grad += out.getGrad();
+        };
+        return out;
+    }
+
+    public CalcNode negate() {
+        return this.multiply(-1);
+    }
+
+    public CalcNode subtract(double other) {
+        CalcNode constant = new CalcNode(other, "?");
+        CalcNode out = new CalcNode(this.value - constant.value, List.of(this, constant), "-");
+        out.differential = cn -> {
+            this.grad += out.getGrad();
+            constant.grad += out.getGrad();
+        };
+        return out;
+    }
+
+    public CalcNode subtract(CalcNode other) {
+        CalcNode subtracted = this.add(other.negate());
+        subtracted.setOperation("-");
+        return subtracted;
+    }
+
+    public CalcNode multiply(CalcNode other) {
+        CalcNode out = new CalcNode(this.value * other.value, List.of(this, other), "*");
+        out.differential = cn -> {
+            this.grad += (out.getGrad() * other.getValue());
+            other.grad += (out.getGrad() * this.getValue());
+        };
+        return out;
+    }
+
+    public CalcNode multiply(double other) {
+        CalcNode constant = new CalcNode(other, "?");
+        CalcNode out = new CalcNode(this.value * constant.value, List.of(this, constant), "*");
+        out.differential = cn -> {
+            this.grad += (out.getGrad() * constant.getValue());
+            constant.grad += (out.getGrad() * this.getValue());
+        };
+        return out;
+    }
+
+    public CalcNode divide(CalcNode other) {
+        return other.powerOf(-1).multiply(this);
+    }
+
+    public CalcNode tanh() {
+        double t = (Math.exp(2 * this.value) - 1) / (Math.exp(2 * this.value) + 1);
+        CalcNode out = new CalcNode(t, List.of(this), "tanh");
+        out.differential = cn -> this.grad += ((1 - (t * t)) * out.getGrad());
+        return out;
+    }
+
+    public CalcNode exp() {
+        double exp = Math.exp(this.value);
+        CalcNode out = new CalcNode(exp, List.of(this), "e");
+        out.differential = cn -> this.grad += out.getValue() * out.getGrad();
+        return out;
+    }
+
+    public CalcNode powerOf(double power) {
+        CalcNode out = new CalcNode(Math.pow(this.value, power), List.of(this), "↑" + power);
+        out.differential = cn -> this.grad += power * Math.pow(this.value, (power - 1)) * out.getGrad();
+        return out;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         CalcNode calcNode = (CalcNode) o;
-        return Double.compare(calcNode.data, data) == 0 && calcNode.label.equals(label);
+        return this.nodeId.equals(calcNode.nodeId);
     }
 
     @Override
     public int hashCode() {
-        long temp = Double.doubleToLongBits(data);
-        temp = (temp ^ (temp >>> 32));
-        temp *= label.hashCode();
-        return (int) temp;
-    }
-
-    public enum Operation{
-        ADD("+"), MULTIPLY("*"), TANH("tanh"),
-        NO_OP(""), EXP("e"), DIV("/"), SUBTRACT("-"),
-        POWER_OF("↑");
-
-        private final String symbol;
-
-        Operation(String symbol){
-            this.symbol = symbol;
-        }
-
-        public String symbol() {
-            return this.symbol;
-        }
+        return nodeId.hashCode();
     }
 }

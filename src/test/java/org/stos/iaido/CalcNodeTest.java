@@ -12,7 +12,7 @@ public class CalcNodeTest {
         CalcNode A = new CalcNode(3.0, "A");
         CalcNode B = new CalcNode(7.0, "B");
         CalcNode C = A.add(B);
-        assertThat(C).isEqualTo(new CalcNode(10.0, ""));
+        assertThat(C.getValue()).isEqualTo(10.0);
     }
 
     @Test
@@ -20,7 +20,7 @@ public class CalcNodeTest {
         CalcNode A = new CalcNode(3.0, "A");
         CalcNode B = new CalcNode(7.0, "B");
         CalcNode C = A.subtract(B);
-        assertThat(C).isEqualTo(new CalcNode(-4.0, ""));
+        assertThat(C.getValue()).isEqualTo(-4.0);
     }
 
     @Test
@@ -29,14 +29,14 @@ public class CalcNodeTest {
         CalcNode B = new CalcNode(7.0, "B");
         CalcNode C = A.multiply(B);
 
-        assertThat(C).isEqualTo(new CalcNode(21.0, ""));
+        assertThat(C.getValue()).isEqualTo(21.0);
     }
 
     @Test
     void negates() {
         CalcNode A = new CalcNode(3.0, "A");
         CalcNode negatedA = A.negate();
-        assertThat(negatedA.getData()).isEqualTo(-3.0);
+        assertThat(negatedA.getValue()).isEqualTo(-3.0);
     }
 
     @Test
@@ -46,10 +46,10 @@ public class CalcNodeTest {
         CalcNode C = new CalcNode(3.0, "C");
 
         CalcNode D = (A.multiply(B)).add(C);
-        assertThat(D).isEqualTo(new CalcNode(103.0, ""));
+        assertThat(D.getValue()).isEqualTo(103.0);
 
         D = (A.multiply(C)).add(B);
-        assertThat(D).isEqualTo(new CalcNode(40, ""));
+        assertThat(D.getValue()).isEqualTo(40);
     }
 
     @Test
@@ -57,28 +57,28 @@ public class CalcNodeTest {
         CalcNode A = new CalcNode(10.0, "A");
         CalcNode B = new CalcNode(5.0, "B");
         CalcNode C = A.divide(B);
-        assertThat(C.getData()).isEqualTo(2.0);
+        assertThat(C.getValue()).isEqualTo(2.0);
     }
 
     @Test
     void tanhIsCorrect() {
         CalcNode A = new CalcNode(1, "A");
         CalcNode B = A.tanh();
-        assertThat(B.getData()).isCloseTo(0.761, offset(0.001));
+        assertThat(B.getValue()).isCloseTo(0.761, offset(0.001));
     }
 
     @Test
     void e_IsCorrect() {
         CalcNode A = new CalcNode(1, "A");
         CalcNode B = A.exp();
-        assertThat(B.getData()).isEqualTo(Math.E);
+        assertThat(B.getValue()).isEqualTo(Math.E);
     }
 
     @Test
     void powerOf() {
         CalcNode A = new CalcNode(3, "A");
         CalcNode B = A.powerOf(3);
-        assertThat(B.getData()).isEqualTo(27.0);
+        assertThat(B.getValue()).isEqualTo(27.0);
     }
 
     @Test
@@ -108,7 +108,7 @@ public class CalcNodeTest {
         CalcNode B = A.add(A);
         B.backPropagate();
 
-        assertThat(B.getData()).isEqualTo(6.0);
+        assertThat(B.getValue()).isEqualTo(6.0);
         assertThat(A.getGrad()).isEqualTo(2.0);
     }
 
@@ -118,7 +118,7 @@ public class CalcNodeTest {
         CalcNode B = A.multiply(A);
         B.backPropagate();
 
-        assertThat(B.getData()).isEqualTo(9.0);
+        assertThat(B.getValue()).isEqualTo(9.0);
         assertThat(A.getGrad()).isEqualTo(6.0);
     }
 
@@ -184,7 +184,7 @@ public class CalcNodeTest {
         CalcNode A = new CalcNode(1.0, "A");
         CalcNode B = A.add(1);
 
-        assertThat(B.getData()).isEqualTo(2.0);
+        assertThat(B.getValue()).isEqualTo(2.0);
     }
 
     @Test
@@ -192,7 +192,7 @@ public class CalcNodeTest {
         CalcNode A = new CalcNode(2.0, "A");
         CalcNode B = A.multiply(10);
 
-        assertThat(B.getData()).isEqualTo(20.0);
+        assertThat(B.getValue()).isEqualTo(20.0);
     }
 
 }

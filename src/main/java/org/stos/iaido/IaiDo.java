@@ -2,9 +2,27 @@ package org.stos.iaido;
 
 public class IaiDo {
     public static void main(String[] args) {
-        boolean complicated = false;
+        int tst = 1;
+        if(tst == 1){
+            CalcNode x = new CalcNode(0.8813735870, "n");
 
-        if(complicated){
+            /*
+                         e^2x - 1
+            tanh(x) =  ————————————
+                         e^2x + 1
+            */
+
+
+            CalcNode x2 = x.multiply(2); x2.setLabel("x2");
+
+            CalcNode e = x2.exp(); e.setLabel("e2x");
+            CalcNode esub = e.subtract(1); esub.setLabel("esub");
+            CalcNode eadd = e.add(1); eadd.setLabel("eadd");
+            CalcNode output = esub.divide(eadd);
+            output.backPropagate();
+            Grapher.draw(output);
+        }
+        else if (tst == 2) {
             //a perceptron with 2 inputs (2D)
             //inputs x0 and x1
             CalcNode
@@ -18,30 +36,31 @@ public class IaiDo {
             CalcNode bias = new CalcNode(6.8813735870, "bias"); //adjusted according to karpathy video
 
             //sum of weighted inputs and bias
-            CalcNode x0w0 = x0.multiply(w0); x0w0.setLabel("x0w0");
-            CalcNode x1w1 = x1.multiply(w1); x1w1.setLabel("x1w1");
-            CalcNode sumInputs = x0w0.add(x1w1); sumInputs.setLabel("summed inputs");
-            CalcNode n = sumInputs.add(bias); n.setLabel("n");
+            CalcNode x0w0 = x0.multiply(w0);
+            x0w0.setLabel("x0w0");
+            CalcNode x1w1 = x1.multiply(w1);
+            x1w1.setLabel("x1w1");
+            CalcNode sumInputs = x0w0.add(x1w1);
+            sumInputs.setLabel("summed inputs");
+            CalcNode n = sumInputs.add(bias);
+            n.setLabel("n");
 
         /*
-                      e^2x - 1
-            tanh =  ————————————
-                      e^2x + 1
+                         e^2x - 1
+            tanh(x) =  ————————————
+                         e^2x + 1
         */
 
-            CalcNode na = n.multiply(2); na.setLabel("na");
-            CalcNode nb = n.multiply(2); nb.setLabel("nb");
+            CalcNode e2x = (n.multiply(2)).exp();
+            CalcNode e2xMinus = e2x.subtract(1);
+            CalcNode e2xPlus = e2x.add(1);
 
-            CalcNode e1 = na.exp(); e1.setLabel("e1");
-            CalcNode e2 = nb.exp(); e2.setLabel("e2");
-            CalcNode e1add = e1.add(-1); e1add.setLabel("e1add");
-            CalcNode e2add = e2.add(1); e2add.setLabel("e2add");
-            CalcNode output = e1add.powerDivide(e2add);
+            CalcNode output = e2xMinus.divide(e2xPlus);
 
             output.backPropagate();
             Grapher.draw(output);
 
-        } else {
+        } else if(tst == 3) {
 
             //a perceptron with 2 inputs (2D)
             //inputs x0 and x1

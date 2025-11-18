@@ -35,7 +35,7 @@ public class BackPropagatorTest {
     }
 
     @Test
-    void shouldBackPropagateOnPerceptron() {
+    void shouldBackPropagateOnePerceptron() {
         //a perceptron with 2 inputs (2D)
         //inputs x0 and x1
         CalcNode
@@ -70,6 +70,27 @@ public class BackPropagatorTest {
     }
 
     @Test
+    void backPropagationOnTanhAndExpComponentsShouldBeEqual() {
+        CalcNode x = new CalcNode(0.8813735870, "n");
+        CalcNode b = x.tanh();
+        b.backPropagate();
+        assertThat(b.getGrad()).isEqualTo(1);
+        assertThat(x.getGrad()).isCloseTo(0.5, offset(0.001));
+
+        CalcNode a = new CalcNode(0.8813735870, "n");
+        CalcNode a2 = a.multiply(2); a2.setLabel("a2");
+
+        CalcNode e = a2.exp(); e.setLabel("e");
+        CalcNode esub = e.subtract(1); esub.setLabel("esub");
+        CalcNode eadd = e.add(1); eadd.setLabel("eadd");
+        CalcNode output = esub.divide(eadd);
+        output.backPropagate();
+
+        assertThat(output.getGrad()).isEqualTo(b.getGrad());
+        assertThat(a.getGrad()).isCloseTo(x.getGrad(), offset(0.001));
+    }
+
+    @Test
     void shouldBackPropagateOnExpComponentPerceptron() {
         //a perceptron with 2 inputs (2D)
         //inputs x0 and x1
@@ -101,7 +122,7 @@ public class BackPropagatorTest {
         CalcNode e2 = nb.exp(); e2.setLabel("e2");
         CalcNode e1add = e1.add(-1); e1add.setLabel("e1add");
         CalcNode e2add = e2.add(1); e2add.setLabel("e2add");
-        CalcNode output = e1add.powerDivide(e2add);
+        CalcNode output = e1add.divide(e2add);
 
         output.backPropagate();
 
