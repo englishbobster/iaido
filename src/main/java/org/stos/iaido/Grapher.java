@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 
 public class Grapher {
 
-    public static void draw(CalcNode root) {
+    public static void draw(CalcNode root, String name) {
         List<CalcNode> calcNodes = root.toList();
 
         Graph graph = initializeGraph();
@@ -49,7 +49,7 @@ public class Grapher {
 
         Graph withNodes = graph.with(nodeByUuid.values().stream().toList());
         try {
-            Graphviz.fromGraph(withNodes).render(Format.PNG).toFile(new File("./output/graph.png"));
+            Graphviz.fromGraph(withNodes).render(Format.PNG).toFile(new File("./output/" + name + ".png"));
         } catch (IOException e) {
             System.out.println("Error while rendering graph");
             throw new RuntimeException(e);
