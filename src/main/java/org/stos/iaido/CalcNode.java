@@ -93,10 +93,6 @@ public class CalcNode {
         this.label = label;
     }
 
-    public void setOperation(String operation) {
-        this.operation = operation;
-    }
-
     public void setGrad(double grad) {
         this.grad = grad;
     }
@@ -109,7 +105,7 @@ public class CalcNode {
         return value;
     }
 
-    public String getOperationSymbol() {
+    public String getOperation() {
         return this.operation;
     }
 
@@ -155,9 +151,7 @@ public class CalcNode {
     }
 
     public CalcNode subtract(CalcNode other) {
-        CalcNode subtracted = this.add(other.negate());
-        subtracted.setOperation("-");
-        return subtracted;
+        return new CalcNode(this.add(other.negate()).getValue(), List.of(this, other), "-");
     }
 
     public CalcNode multiply(CalcNode other) {

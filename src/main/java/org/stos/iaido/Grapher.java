@@ -36,7 +36,7 @@ public class Grapher {
             if(calcNode.hasChildren()){
                 for(UUID child: calcNode.getChildren().stream().map(CalcNode::getNodeId).toList()){
                     MutableNode target = nodeByUuid.get(calcNode.getNodeId());
-                    if(!calcNode.getOperationSymbol().isEmpty()){
+                    if(!calcNode.getOperation().isEmpty()){
                         MutableNode opNode = createOperation(calcNode, target);
                         nodeByUuid.put(UUID.randomUUID(), opNode);
                         nodeByUuid.get(child).addLink(opNode);
@@ -58,7 +58,7 @@ public class Grapher {
 
     private static MutableNode createOperation(CalcNode calcNode, MutableNode target) {
         return Factory.mutNode(calcNode.getNodeId().toString())
-                .add(Records.label(calcNode.getOperationSymbol()))
+                .add(Records.label(calcNode.getOperation()))
                 .add(Shape.CIRCLE).addLink(target);
     }
 

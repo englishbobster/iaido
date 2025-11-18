@@ -97,9 +97,9 @@ public class CalcNodeTest {
         CalcNode B = new CalcNode(4.0, "B");
         CalcNode C = A.multiply(B);
         System.out.println(C);
-        assertThat(A.getOperationSymbol()).isEmpty();
-        assertThat(B.getOperationSymbol()).isEmpty();
-        assertThat(C.getOperationSymbol()).isEqualTo("*");
+        assertThat(A.getOperation()).isEmpty();
+        assertThat(B.getOperation()).isEmpty();
+        assertThat(C.getOperation()).isEqualTo("*");
     }
 
     @Test
