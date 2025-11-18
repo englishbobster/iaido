@@ -9,11 +9,8 @@ import java.util.function.Consumer;
  * To distribute gradiant values backwards through the graph follow these rules:
  * Root node grad is 1.00
  * multiplication parent: current child node grad = parent node grad * sibling node data
- * addition parent: current node grad = parent node (addition distributes parent grad)
- * <p>
- * <p>
- * nudge leaf node data (available inputs) by small amount and recalculate data
- * node data += (small amount * node grad)
+ * addition/subtraction parent: current node grad = parent node (addition distributes parent grad)
+ * and then the usual differential rules for the unary operator methods (e, tanh, and power)
  * <p>
  * recalculate all node gradients according to the rules.
  **/
