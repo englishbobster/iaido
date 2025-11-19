@@ -4,13 +4,14 @@ import java.util.List;
 
 public class IaiDo {
     public static void main(String[] args) {
-        expFunctionPerceptron();
-        tanhFunctionPerceptron();
+        //expFunctionPerceptron();
+        //tanhFunctionPerceptron();
 
-        Layer layer = new Layer(2, 3);
-        List<Double> inputs = List.of(2.0, 3.0);
-        List<CalcNode> outputs = layer.prepareLayer().apply(inputs);
+        List<Double> inputs = List.of(2.0, 3.0, -1.0);
+        MLP mlp = new MLP(3, List.of(4, 4, 1));
+        List<CalcNode> outputs = mlp.wireMLP().apply(inputs);
         outputs.forEach(System.out::println);
+        Grapher.draw(outputs.getFirst(), "bigGraph");
     }
 
     private static void tanhFunctionPerceptron() {
