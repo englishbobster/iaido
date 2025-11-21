@@ -4,8 +4,8 @@ import java.util.List;
 
 public class IaiDo {
     public static void main(String[] args) {
-        //expFunctionPerceptron();
-        //tanhFunctionPerceptron();
+        expFunctionPerceptron();
+        tanhFunctionPerceptron();
 
         List<Double> inputs = List.of(2.0, 3.0, -1.0);
         MLP mlp = new MLP(3, List.of(4, 4, 1));
