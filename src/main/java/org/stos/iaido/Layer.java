@@ -19,10 +19,10 @@ public class Layer {
         this.neurons = neurons;
     }
 
-    public Function<List<Double>, List<CalcNode>> prepareLayer() {
-        return doubles -> IntStream.range(0, neurons.size())
+    public Function<List<CalcNode>, List<CalcNode>> prepareLayer() {
+        return calcNodes -> IntStream.range(0, neurons.size())
                 .boxed()
-                .map(i -> neurons.get(i).wireNeuron().apply(doubles))
+                .map(i -> neurons.get(i).wireNeuron().apply(calcNodes))
                 .toList();
     }
 }

@@ -31,7 +31,7 @@ public class Neuron {
         weights = nodes;
     }
 
-    public Function<List<Double>, CalcNode> wireNeuron() {
+    public Function<List<CalcNode>, CalcNode> wireNeuron() {
         return doubles -> {
             int size = Math.min(weights.size(), doubles.size());
             CalcNode activation = IntStream.range(0, size).boxed()

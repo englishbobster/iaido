@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
-import static java.util.stream.Collectors.toList;
 
 public class MLP {
     private List<Layer> layers;
@@ -29,9 +28,15 @@ public class MLP {
     }
 
     public Function<List<Double>, List<CalcNode>> wireMLP() {
-        return doubles -> layers.stream()
-                .map(layer -> layer.prepareLayer().apply(doubles))
-                .reduce((calcsA, calcsB) -> calcsB).orElseThrow();
+        return doubles -> {
+            List<CalcNode> currentNodes = doubles.stream().map(d -> new CalcNode(d, "i")).toList();
+            List<CalcNode> nodes = new ArrayList<>();
+            for(Layer layer : layers) {
+                nodes = layer.prepareLayer().apply(currentNodes);
+                currentNodes = nodes;
+            }
+            return nodes;
+        };
     }
 
 }
